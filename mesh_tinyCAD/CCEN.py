@@ -165,5 +165,5 @@ class CirclePanel(bpy.types.Panel):
         col = layout.column() # @ryanm: .col() is not an attribute of UILayout
         col.prop(context.scene, "tc_numverts")
 
-        s1 = col.operator("mesh.circlecenter", text='GreasePencil points')
+        s1 = col.operator("mesh.circlecenter", text='GreasePencil points') # @ryanm: mesh.circlecenter' is not a valid identifier
         s1.nv = context.scene.tc_numverts

@@ -300,7 +300,7 @@ class FPoperartor0(bpy.types.Operator):
 		ob_act = context.active_object
 		me = ob_act.data
 		bm = bmesh.from_edit_mesh(me)
-		bm.verts.ensure_lookup_table()
+		bm.verts.ensure_lookup_table() # @ryanm: Added call to ensure_lookup_table()
 #		e_mode = bpy.context.tool_settings.mesh_select_mode
 		
 		done = 1
@@ -312,7 +312,7 @@ class FPoperartor0(bpy.types.Operator):
 			done = 0
 			
 			for v in tempset:
-				bm.verts.ensure_lookup_table()
+				bm.verts.ensure_lookup_table() # @ryanm: Added call to ensure_lookup_table()
 				cnt = 0
 				edgeset = set([])
 				for e in v.link_edges:
