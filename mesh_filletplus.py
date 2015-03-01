@@ -22,9 +22,9 @@
 # ------ ------
 bl_info = {
 	'name': 'FilletPlus',
-	'author': 'Gert De Roost - original by zmj100',
+	'author': 'Gert De Roost - original by zmj100, further modified by Ryan McClure',
 	'version': (0, 4, 3),
-	'blender': (2, 6, 1),
+	'blender': (2, 7, 3),
 	'api': 43085,
 	'location': 'View3D > Tool Shelf',
 	'description': '',
@@ -300,6 +300,7 @@ class FPoperartor0(bpy.types.Operator):
 		ob_act = context.active_object
 		me = ob_act.data
 		bm = bmesh.from_edit_mesh(me)
+		bm.verts.ensure_lookup_table()
 #		e_mode = bpy.context.tool_settings.mesh_select_mode
 		
 		done = 1
@@ -308,8 +309,10 @@ class FPoperartor0(bpy.types.Operator):
 			for v in bm.verts:
 				if v.select:
 					tempset.add(v)
-			done = 0		
+			done = 0
+			
 			for v in tempset:
+				bm.verts.ensure_lookup_table()
 				cnt = 0
 				edgeset = set([])
 				for e in v.link_edges:
