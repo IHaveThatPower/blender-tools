@@ -162,8 +162,8 @@ class CirclePanel(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        col = layout.col()
+        col = layout.column() # @ryanm: .col() is not an attribute of UILayout
         col.prop(context.scene, "tc_numverts")
 
-        s1 = col.operator("mesh.circlecenter'", text='GreasePencil points')
+        s1 = col.operator("mesh.circlecenter", text='GreasePencil points')
         s1.nv = context.scene.tc_numverts
