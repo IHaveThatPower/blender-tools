@@ -72,7 +72,7 @@ bl_info = {
     "name": "EdgeTools",
     "author": "Paul Marshall",
     "version": (0, 8),
-    "blender": (2, 68, 0),
+    "blender": (2, 80, 0),
     "location": "View3D > Toolbar and View3D > Specials (W-key)",
     "warning": "",
     "description": "CAD style edge manipulation tools",
@@ -672,16 +672,16 @@ def fillet_point(t, face1, face2):
 class Extend(bpy.types.Operator):
     bl_idname = "mesh.edgetools_extend"
     bl_label = "Extend"
-    bl_description = "Extend the selected edges of vertice pair."
+    bl_description = "Extend the selected edges of vertex pair."
     bl_options = {'REGISTER', 'UNDO'}
 
-    di1 = BoolProperty(name = "Forwards",
+    di1: BoolProperty(name = "Forwards",
                        description = "Extend the edge forwards",
                        default = True)
-    di2 = BoolProperty(name = "Backwards",
+    di2: BoolProperty(name = "Backwards",
                        description = "Extend the edge backwards",
                        default = False)
-    length = FloatProperty(name = "Length",
+    length: FloatProperty(name = "Length",
                            description = "Length to extend the edge",
                            min = 0.0, max = 1024.0,
                            default = 1.0)
@@ -775,29 +775,29 @@ class Spline(bpy.types.Operator):
     bl_description = "Create a spline interplopation between two edges"
     bl_options = {'REGISTER', 'UNDO'}
     
-    alg = EnumProperty(name = "Spline Algorithm",
+    alg: EnumProperty(name = "Spline Algorithm",
                        items = [('Blender', 'Blender', 'Interpolation provided through \"mathutils.geometry\"'),
                                 ('Hermite', 'C-Spline', 'C-spline interpolation'),
                                 ('Bezier', 'Bézier', 'Bézier interpolation'),
                                 ('B-Spline', 'B-Spline', 'B-Spline interpolation')],
                        default = 'Bezier')
-    segments = IntProperty(name = "Segments",
+    segments: IntProperty(name = "Segments",
                            description = "Number of segments to use in the interpolation",
                            min = 2, max = 4096,
                            soft_max = 1024,
                            default = 32)
-    flip1 = BoolProperty(name = "Flip Edge",
+    flip1: BoolProperty(name = "Flip Edge",
                          description = "Flip the direction of the spline on edge 1",
                          default = False)
-    flip2 = BoolProperty(name = "Flip Edge",
+    flip2: BoolProperty(name = "Flip Edge",
                          description = "Flip the direction of the spline on edge 2",
                          default = False)
-    ten1 = FloatProperty(name = "Tension",
+    ten1: FloatProperty(name = "Tension",
                          description = "Tension on edge 1",
                          min = -4096.0, max = 4096.0,
                          soft_min = -8.0, soft_max = 8.0,
                          default = 1.0)
-    ten2 = FloatProperty(name = "Tension",
+    ten2: FloatProperty(name = "Tension",
                          description = "Tension on edge 2",
                          min = -4096.0, max = 4096.0,
                          soft_min = -8.0, soft_max = 8.0,
@@ -913,35 +913,35 @@ class Ortho(bpy.types.Operator):
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
 
-    vert1 = BoolProperty(name = "Vertice 1",
-                         description = "Enable edge creation for vertice 1.",
+    vert1: BoolProperty(name = "Vertex 1",
+                         description = "Enable edge creation for vertex 1.",
                          default = True)
-    vert2 = BoolProperty(name = "Vertice 2",
-                         description = "Enable edge creation for vertice 2.",
+    vert2: BoolProperty(name = "Vertex 2",
+                         description = "Enable edge creation for vertex 2.",
                          default = True)
-    vert3 = BoolProperty(name = "Vertice 3",
-                         description = "Enable edge creation for vertice 3.",
+    vert3: BoolProperty(name = "Vertex 3",
+                         description = "Enable edge creation for vertex 3.",
                          default = True)
-    vert4 = BoolProperty(name = "Vertice 4",
-                         description = "Enable edge creation for vertice 4.",
+    vert4: BoolProperty(name = "Vertex 4",
+                         description = "Enable edge creation for vertex 4.",
                          default = True)
-    pos = BoolProperty(name = "+",
+    pos: BoolProperty(name = "+",
                        description = "Enable positive direction edges.",
                        default = True)
-    neg = BoolProperty(name = "-",
+    neg: BoolProperty(name = "-",
                        description = "Enable negitive direction edges.",
                        default = True)
-    angle = FloatProperty(name = "Angle",
+    angle: FloatProperty(name = "Angle",
                           description = "Angle off of the originating edge",
                           min = 0.0, max = 180.0,
                           default = 90.0)
-    length = FloatProperty(name = "Length",
+    length: FloatProperty(name = "Length",
                            description = "Length of created edges.",
                            min = 0.0, max = 1024.0,
                            default = 1.0)
 
     # For when only one edge is selected (Possible feature to be testd):
-    plane = EnumProperty(name = "Plane",
+    plane: EnumProperty(name = "Plane",
                          items = [("XY", "X-Y Plane", "Use the X-Y plane as the plane of creation"),
                                   ("XZ", "X-Z Plane", "Use the X-Z plane as the plane of creation"),
                                   ("YZ", "Y-Z Plane", "Use the Y-Z plane as the plane of creation")],
@@ -1081,32 +1081,32 @@ class Shaft(bpy.types.Operator):
     shaftType = 0
 
     # For tracking if the user has changed selection:
-    last_edge = IntProperty(name = "Last Edge",
+    last_edge: IntProperty(name = "Last Edge",
                             description = "Tracks if user has changed selected edge",
                             min = 0, max = 1,
                             default = 0)
     last_flip = False
     
-    edge = IntProperty(name = "Edge",
+    edge: IntProperty(name = "Edge",
                        description = "Edge to shaft around.",
                        min = 0, max = 1,
                        default = 0)
-    flip = BoolProperty(name = "Flip Second Edge",
+    flip: BoolProperty(name = "Flip Second Edge",
                         description = "Flip the percieved direction of the second edge.",
                         default = False)
-    radius = FloatProperty(name = "Radius",
+    radius: FloatProperty(name = "Radius",
                            description = "Shaft Radius",
                            min = 0.0, max = 1024.0,
                            default = 1.0)
-    start = FloatProperty(name = "Starting Angle",
+    start: FloatProperty(name = "Starting Angle",
                           description = "Angle to start the shaft at.",
                           min = -360.0, max = 360.0,
                           default = 0.0)
-    finish = FloatProperty(name = "Ending Angle",
+    finish: FloatProperty(name = "Ending Angle",
                            description = "Angle to end the shaft at.",
                            min = -360.0, max = 360.0,
                            default = 360.0)
-    segments = IntProperty(name = "Shaft Segments",
+    segments: IntProperty(name = "Shaft Segments",
                            description = "Number of sgements to use in the shaft.",
                            min = 1, max = 4096,
                            soft_max = 512,
@@ -1260,7 +1260,7 @@ class Shaft(bpy.types.Operator):
 ##            matrices.append(Matrix.Rotation((rads * i) + rotRange[0], 3, axis))
         matrices = [Matrix.Rotation((rads * i) + rotRange[0], 3, axis) for i in range(numV)]
 
-        # New vertice coordinates:
+        # New vertex coordinates:
         verts_out = []
 
         # If two edges were selected:
@@ -1370,16 +1370,16 @@ class Slice(bpy.types.Operator):
     bl_description = "Cuts edges at the plane defined by a selected face."
     bl_options = {'REGISTER', 'UNDO'}
 
-    make_copy = BoolProperty(name = "Make Copy",
+    make_copy: BoolProperty(name = "Make Copy",
                              description = "Make new vertices at intersection points instead of spliting the edge",
                              default = False)
-    rip = BoolProperty(name = "Rip",
-                       description = "Split into two edges that DO NOT share an intersection vertice.",
+    rip: BoolProperty(name = "Rip",
+                       description = "Split into two edges that DO NOT share an intersection vertex.",
                        default = False)
-    pos = BoolProperty(name = "Positive",
+    pos: BoolProperty(name = "Positive",
                        description = "Remove the portion on the side of the face normal",
                        default = False)
-    neg = BoolProperty(name = "Negative",
+    neg: BoolProperty(name = "Negative",
                        description = "Remove the portion on the side opposite of the face normal",
                        default = False)
 
@@ -1487,7 +1487,7 @@ class Slice(bpy.types.Operator):
                     # If they have different signs, then the edge crosses the
                     # cutting plane:
                     if abs(d1 + d2) < abs(d1 - d2):
-                        # Make the first vertice the positive vertice:
+                        # Make the first vertex the positive vertex:
                         if d1 < d2:
                             v2, v1 = v1, v2
                         if self.make_copy:
@@ -1541,7 +1541,7 @@ class Project(bpy.types.Operator):
     bl_description = "Projects the selected vertices/edges onto the selected plane."
     bl_options = {'REGISTER', 'UNDO'}
 
-    make_copy = BoolProperty(name = "Make Copy",
+    make_copy: BoolProperty(name = "Make Copy",
                              description = "Make a duplicate of the vertices instead of moving it",
                              default = False)
 
@@ -1608,19 +1608,19 @@ class Project(bpy.types.Operator):
 class Project_End(bpy.types.Operator):
     bl_idname = "mesh.edgetools_project_end"
     bl_label = "Project (End Point)"
-    bl_description = "Projects the vertice of the selected edges closest to a plane onto that plane."
+    bl_description = "Projects the vertex of the selected edges closest to a plane onto that plane."
     bl_options = {'REGISTER', 'UNDO'}
 
-    make_copy = BoolProperty(name = "Make Copy",
-                             description = "Make a duplicate of the vertice instead of moving it",
+    make_copy: BoolProperty(name = "Make Copy",
+                             description = "Make a duplicate of the vertex instead of moving it",
                              default = False)
-    keep_length = BoolProperty(name = "Keep Edge Length",
+    keep_length: BoolProperty(name = "Keep Edge Length",
                                description = "Maintain edge lengths",
                                default = False)
-    use_force = BoolProperty(name = "Use opposite vertices",
+    use_force: BoolProperty(name = "Use opposite vertices",
                              description = "Force the usage of the vertices at the other end of the edge",
                              default = False)
-    use_normal = BoolProperty(name = "Project along normal",
+    use_normal: BoolProperty(name = "Project along normal",
                               description = "Use the plane's normal as the projection direction",
                               default = False)
 
@@ -1679,7 +1679,7 @@ class Project_End(bpy.types.Operator):
                     # Use abs because we don't care what side of plane we're on:
                     d1 = distance_point_to_plane(v1.co, fVerts[0].co, normal)
                     d2 = distance_point_to_plane(v2.co, fVerts[0].co, normal)
-                    # If d1 is closer than we use v1 as our vertice:
+                    # If d1 is closer than we use v1 as our vertex:
                     # "xor" with 'use_force':
                     if (abs(d1) < abs(d2)) is not self.use_force:
                         if self.make_copy:
@@ -1753,23 +1753,23 @@ class Fillet(bpy.types.Operator):
     bl_description = "Fillet the selected edges."
     bl_options = {'REGISTER', 'UNDO'}
 
-    radius = FloatProperty(name = "Radius",
+    radius: FloatProperty(name = "Radius",
                            description = "Radius of the edge fillet",
                            min = 0.00001, max = 1024.0,
                            default = 0.5)
-    prop = EnumProperty(name = "Propagation",
+    prop: EnumProperty(name = "Propagation",
                         items = [("m", "Minimal", "Minimal edge propagation"),
                                  ("t", "Tangential", "Tangential edge propagation")],
                         default = "m")
-    prop_fac = FloatProperty(name = "Propagation Factor",
+    prop_fac: FloatProperty(name = "Propagation Factor",
                              description = "Corner detection sensitivity factor for tangential propagation",
                              min = 0.0, max = 100.0,
                              default = 25.0)
-    deg_seg = FloatProperty(name = "Degrees/Section",
+    deg_seg: FloatProperty(name = "Degrees/Section",
                             description = "Approximate degrees per section",
                             min = 0.00001, max = 180.0,
                             default = 10.0)
-    res = IntProperty(name = "Resolution",
+    res: IntProperty(name = "Resolution",
                       description = "Resolution of the fillet",
                       min = 1, max = 1024,
                       default = 8)
@@ -1958,7 +1958,7 @@ def register():
         print("EdgeTools UI integration test - TinyCAD VTX Found")
         integrated = True
     
-    bpy.types.VIEW3D_MT_edit_mesh_specials.prepend(menu_func)
+    bpy.types.VIEW3D_MT_edit_mesh_context_menu.prepend(menu_func)
 
 
 # unregistering and removing menus
@@ -1966,7 +1966,7 @@ def unregister():
     for c in classes:
         bpy.utils.unregister_class(c)
 
-    bpy.types.VIEW3D_MT_edit_mesh_specials.remove(menu_func)
+    bpy.types.VIEW3D_MT_edit_mesh_context_menu.remove(menu_func)
 
 
 if __name__ == "__main__":
