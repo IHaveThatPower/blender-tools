@@ -8,16 +8,19 @@ bl_info = {
 	"category": "Mesh",
 }
 
-import bpy
+import bpy, io
+from contextlib import redirect_stdout
  
 class RemoveDoublesOperator(bpy.types.Operator):
 	bl_idname = "mesh.remove_doubles_classic"
 	bl_label = "Remove Doubles"
 	bl_options = {'REGISTER', 'UNDO'}
 	
-	threshold: bpy.props.FloatProperty(
+	Threshold: bpy.props.FloatProperty(
 		min=0,
 		default=0.0001,
+		unit='LENGTH',
+		precision=4
 	)
 	
 	def execute(self, context):
@@ -40,7 +43,12 @@ class RemoveDoublesOperator(bpy.types.Operator):
 				bpy.ops.mesh.select_all(action='SELECT')
 			selectedVerts = [v for v in mesh.vertices if v.select]
 			# Remove doubles
-			bpy.ops.mesh.remove_doubles(threshold=self.threshold, use_unselected=False)
+			stdout = io.StringIO()
+			with redirect_stdout(stdout):
+				bpy.ops.mesh.remove_doubles(threshold=self.Threshold, use_unselected=False)
+			stdout.seek(0)
+			self.report({'INFO'}, stdout.read().strip())
+			del stdout
 			# Restore the non-selection if applicable
 			if hadNoneSelected is True:
 				bpy.ops.mesh.select_all(action='DESELECT')
