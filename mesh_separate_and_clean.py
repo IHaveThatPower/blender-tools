@@ -8,7 +8,7 @@ bl_info = {
     "category": "Mesh",
 }
 
-import bpy, io
+import bpy, io, bmesh
 from contextlib import redirect_stdout
 
 class SeparateAndCleanOperator(bpy.types.Operator):
@@ -54,46 +54,62 @@ class SeparateAndCleanOperator(bpy.types.Operator):
             obj = context.edit_object
             mesh = obj.data
 
-            # Update and snag the selection by toggling into and out of object mode
-            self.swap_mode('OBJECT')
-            selectedVerts = [v for v in mesh.vertices if v.select]
-            selectedEdges = [e for e in mesh.edges if e.select]
-            selectedFaces = [f for f in mesh.polygons if f.select]
-            if len(selectedVerts) == 0 and len(selectedEdges) == 0 and len(selectedFaces) == 0:
+            # Snag the selection by getting the bmesh
+            bm = bmesh.from_edit_mesh(mesh)
+            selectedVerts = [v for v in bm.verts if v.select]
+            if len(selectedVerts) == 0:
                 self.report({'ERROR'}, 'Must have something selected to separate')
                 return {'FINISHED'}
 
-            # Flip back to edit mode to do the separation
-            self.swap_mode('EDIT')
+            # Separate the selection
             bpy.ops.mesh.separate(type='SELECTED')
 
-            # Flip back to object mode to see what we now have selected
-            self.swap_mode('OBJECT')
+            # See what objects we now have selected
             current_selection = context.selected_objects
 
-            # Identify the new objects only and purge them of modifiers
+            # Identify the new objects
             new_objects = [o for o in current_selection if o not in initial_selection]
+
+            # Loop over the objects and clean 'em up
             for no in new_objects:
+                print(no.name)
                 if self.doModifiers:
                    no.modifiers.clear()
-                context.view_layer.objects.active = no
+
                 if self.doMaterials:
-                    bpy.ops.object.material_slot_remove_unused()
+                    # Override context so we don't have to mess with our existing context to use an object operator
+                    override_context = context.copy()
+                    override_context['active_object'] = no
+
+                    # Capture output so we can report it
+                    stdout = io.StringIO()
+                    with redirect_stdout(stdout):
+                        # Do the actual material cleanup
+                        bpy.ops.object.material_slot_remove_unused(override_context)
+                    stdout.seek(0)
+                    self.report({'INFO'}, stdout.read().strip())
+                    del stdout
+
                 if self.doVtxGroups:
                     while len(no.vertex_groups) > 0:
                         for vg in no.vertex_groups:
                             no.vertex_groups.remove(vg)
+
                 if self.doShapeKeys:
-                    for k in no.data.shape_keys.key_blocks:
-                        no.shape_key_remove(k)
+                    if no.data.shape_keys is not None:
+                        for k in no.data.shape_keys.key_blocks:
+                            no.shape_key_remove(k)
+
                 if self.doUVs:
                     while len(no.data.uv_layers) > 0:
                         for uv in no.data.uv_layers:
                             no.data.uv_layers.remove(uv)
+
                 if self.doVtxColors:
                     while len(no.data.vertex_colors) > 0:
                         for vc in no.data.vertex_colors:
                             no.data.vertex_colors.remove(vc)
+
                 if self.doFaceMaps:
                     for fm in no.data.face_maps:
                         print("Removing FaceMap (Mesh) %s" % fm.name)
@@ -101,15 +117,6 @@ class SeparateAndCleanOperator(bpy.types.Operator):
                     for fm in no.face_maps:
                         print("Removing FaceMap (obj) %s" % fm.name)
                         no.face_maps.remove(fm)
-
-            # Swap back to our previous selection, including the separated object
-            for co in current_selection:
-                co.select_set(True)
-            # Ensure our original active object is still active
-            context.view_layer.objects.active = obj
-
-            # Switch back into edit mode
-            self.swap_mode('EDIT')
         else:
             self.report({'WARNING'}, 'Must have an active object in edit mode')
         return {'FINISHED'}
