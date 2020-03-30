@@ -10,21 +10,50 @@ bl_info = {
 
 import bpy, io
 from contextlib import redirect_stdout
- 
+
 class SeparateAndCleanOperator(bpy.types.Operator):
     bl_idname = "mesh.separate_and_clean"
     bl_label = "Separate & Clean"
     bl_options = {'REGISTER', 'UNDO'}
-    
+
+    doModifiers: bpy.props.BoolProperty(
+        default=True,
+        name='Delete Modifiers'
+    )
+    doMaterials: bpy.props.BoolProperty(
+        default=True,
+        name='Remove Unused Materials'
+    )
+    doVtxGroups: bpy.props.BoolProperty(
+        default=True,
+        name='Delete Vertex Groups'
+    )
+    doShapeKeys: bpy.props.BoolProperty(
+        default=False,
+        name='Delete Shape Keys'
+    )
+    doUVs: bpy.props.BoolProperty(
+        default=False,
+        name='Deleete UV Maps'
+    )
+    doVtxColors: bpy.props.BoolProperty(
+        default=False,
+        name='Delete Vertex Colors'
+    )
+    doFaceMaps: bpy.props.BoolProperty(
+        default=False,
+        name='Delete Face Maps'
+    )
+
     def execute(self, context):
         if context.edit_object is not None:
             # All initially-selected objects
             initial_selection = context.selected_objects
-            
+
             # Active object
             obj = context.edit_object
             mesh = obj.data
-            
+
             # Update and snag the selection by toggling into and out of object mode
             self.swap_mode('OBJECT')
             selectedVerts = [v for v in mesh.vertices if v.select]
@@ -33,52 +62,46 @@ class SeparateAndCleanOperator(bpy.types.Operator):
             if len(selectedVerts) == 0 and len(selectedEdges) == 0 and len(selectedFaces) == 0:
                 self.report({'ERROR'}, 'Must have something selected to separate')
                 return {'FINISHED'}
-            
-            # Capture current mode for later restoration
-            # currentMode = bpy.context.tool_settings.mesh_select_mode[:]
-            # Set mode to all
-            # bpy.context.tool_settings.mesh_select_mode = (True, True, True)
 
-            # selectedVerts = [v for v in mesh.vertices if v.select]
-            # bpy.ops.object.mode_set(mode = 'EDIT')
-            # If we still have nothing selected, assume we want to operate on everything.
-            # hadNoneSelected = False
-            # if len(selectedVerts) == 0:
-            #    hadNoneSelected = True
-            #    bpy.ops.mesh.select_all(action='SELECT')
-            
-            # Remove doubles
-            #stdout = io.StringIO()
-            #with redirect_stdout(stdout):
-            #    bpy.ops.mesh.remove_doubles(threshold=self.Threshold, use_unselected=False)
-            #stdout.seek(0)
-            #self.report({'INFO'}, stdout.read().strip())
-            #del stdout
-            # Restore the non-selection if applicable
-            #if hadNoneSelected is True:
-            #    bpy.ops.mesh.select_all(action='DESELECT')
-            
             # Flip back to edit mode to do the separation
             self.swap_mode('EDIT')
             bpy.ops.mesh.separate(type='SELECTED')
-            
+
             # Flip back to object mode to see what we now have selected
             self.swap_mode('OBJECT')
             current_selection = context.selected_objects
-            
+
             # Identify the new objects only and purge them of modifiers
             new_objects = [o for o in current_selection if o not in initial_selection]
             for no in new_objects:
-                no.modifiers.clear()
-            
-            # Now swap our selection to the new stuff and remove unused materials
-            for io in initial_selection:
-                if io not in new_objects:
-                    io.select_set(False)
-            for no in new_objects:
-                no.select_set(True)
-            bpy.ops.object.material_slot_remove_unused()
-            
+                if self.doModifiers:
+                   no.modifiers.clear()
+                context.view_layer.objects.active = no
+                if self.doMaterials:
+                    bpy.ops.object.material_slot_remove_unused()
+                if self.doVtxGroups:
+                    while len(no.vertex_groups) > 0:
+                        for vg in no.vertex_groups:
+                            no.vertex_groups.remove(vg)
+                if self.doShapeKeys:
+                    for k in no.data.shape_keys.key_blocks:
+                        no.shape_key_remove(k)
+                if self.doUVs:
+                    while len(no.data.uv_layers) > 0:
+                        for uv in no.data.uv_layers:
+                            no.data.uv_layers.remove(uv)
+                if self.doVtxColors:
+                    while len(no.data.vertex_colors) > 0:
+                        for vc in no.data.vertex_colors:
+                            no.data.vertex_colors.remove(vc)
+                if self.doFaceMaps:
+                    for fm in no.data.face_maps:
+                        print("Removing FaceMap (Mesh) %s" % fm.name)
+                        no.data.face_maps.remove(fm)
+                    for fm in no.face_maps:
+                        print("Removing FaceMap (obj) %s" % fm.name)
+                        no.face_maps.remove(fm)
+
             # Swap back to our previous selection, including the separated object
             for co in current_selection:
                 co.select_set(True)
@@ -90,7 +113,7 @@ class SeparateAndCleanOperator(bpy.types.Operator):
         else:
             self.report({'WARNING'}, 'Must have an active object in edit mode')
         return {'FINISHED'}
-    
+
     """
     Helper function to make mode-swapping easier.
     @param    string new_mode
