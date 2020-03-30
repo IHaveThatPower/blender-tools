@@ -34,7 +34,7 @@ class SeparateAndCleanOperator(bpy.types.Operator):
     )
     doUVs: bpy.props.BoolProperty(
         default=False,
-        name='Deleete UV Maps'
+        name='Delete UV Maps'
     )
     doVtxColors: bpy.props.BoolProperty(
         default=False,
